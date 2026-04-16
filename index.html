@@ -1,0 +1,1237 @@
+<!doctype html>
+<html lang="id" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Materi Perpustakaan Digital - Database &amp; CRUD</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&amp;family=DM+Sans:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Instrument Serif', 'Georgia', 'serif'],
+            sans: ['DM Sans', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .code-block { background: #1a1b2e; color: #e2e8f0; border-radius: 12px; overflow-x: auto; }
+    .code-block .kw { color: #c792ea; }
+    .code-block .fn { color: #82aaff; }
+    .code-block .str { color: #c3e88d; }
+    .code-block .cm { color: #636d83; font-style: italic; }
+    .code-block .num { color: #f78c6c; }
+    .code-block .var { color: #89ddff; }
+    .code-block .type { color: #ffcb6b; }
+    .tab-active { border-bottom: 3px solid; }
+    .card-hover { transition: all 0.3s cubic-bezier(0.4,0,0.2,1); }
+    .card-hover:hover { transform: translateY(-2px); }
+    .fade-in { animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .toast-show { animation: toastIn 0.3s ease, toastOut 0.3s ease 2.7s; }
+    @keyframes toastIn { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes toastOut { from { opacity:1; } to { opacity:0; } }
+    .status-available { background: #d1fae5; color: #065f46; }
+    .status-borrowed { background: #fef3c7; color: #92400e; }
+    .confirm-overlay { background: rgba(0,0,0,0.5); }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+ </head>
+ <body class="h-full font-sans" style="background:#0f1019; color:#e2e8f0;">
+  <div id="app" class="h-full w-full overflow-auto">
+   <!-- Header -->
+   <header style="background:linear-gradient(135deg,#1a1b2e 0%,#2d1b4e 50%,#1a2a4e 100%);" class="relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10">
+     <svg width="100%" height="100%"><defs>
+       <pattern id="grid" width="40" height="40" patternunits="userSpaceOnUse">
+        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#fff" stroke-width="0.5" />
+       </pattern>
+      </defs><rect width="100%" height="100%" fill="url(#grid)" />
+     </svg>
+    </div>
+    <div class="max-w-6xl mx-auto px-6 py-12 relative z-10">
+     <div class="flex items-center gap-3 mb-4">
+      <div class="w-12 h-12 rounded-xl flex items-center justify-center" style="background:#7c3aed;">
+       <i data-lucide="book-open" style="width:24px;height:24px;color:#fff;"></i>
+      </div><span class="text-sm font-mono px-3 py-1 rounded-full" style="background:rgba(124,58,237,0.25);color:#c4b5fd;">MODUL PEMBELAJARAN</span>
+     </div>
+     <h1 id="mainTitle" class="font-serif text-4xl md:text-5xl mb-3" style="color:#f5f5ff;">Pembuatan Database, Koneksi &amp; CRUD</h1>
+     <p id="subtitle" class="text-lg md:text-xl opacity-80 max-w-2xl" style="color:#c4b5fd;">Aplikasi Perpustakaan Digital — Panduan Lengkap dari Teori hingga Praktik</p>
+     <div class="flex flex-wrap gap-4 mt-8">
+      <div class="flex items-center gap-2 text-sm opacity-70"><i data-lucide="layers" style="width:16px;height:16px;"></i> 6 Bab Materi
+      </div>
+      <div class="flex items-center gap-2 text-sm opacity-70"><i data-lucide="code" style="width:16px;height:16px;"></i> Contoh Kode SQL &amp; PHP
+      </div>
+      <div class="flex items-center gap-2 text-sm opacity-70"><i data-lucide="database" style="width:16px;height:16px;"></i> Demo CRUD Interaktif
+      </div>
+     </div>
+    </div>
+   </header><!-- Navigation Tabs -->
+   <nav class="sticky top-0 z-40 border-b" style="background:#13141f;border-color:#2a2b3d;">
+    <div class="max-w-6xl mx-auto px-6 flex overflow-x-auto gap-1" id="tabNav">
+     <button onclick="showSection(0)" class="tab-btn tab-active px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors" style="border-color:#7c3aed;color:#c4b5fd;">1. Pendahuluan</button> <button onclick="showSection(1)" class="tab-btn px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors opacity-60">2. Database</button> <button onclick="showSection(2)" class="tab-btn px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors opacity-60">3. Koneksi</button> <button onclick="showSection(3)" class="tab-btn px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors opacity-60">4. CRUD</button> <button onclick="showSection(4)" class="tab-btn px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors opacity-60">5. Relasi</button> <button onclick="showSection(5)" class="tab-btn px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors opacity-60">6. Penjelasan Prktik</button>
+    </div>
+   </nav><!-- Content Sections -->
+   <main class="max-w-6xl mx-auto px-6 py-10">
+    <!-- Section 0: Pendahuluan -->
+    <section id="sec-0" class="fade-in space-y-8">
+     <div class="rounded-2xl p-8" style="background:#1a1b2e;">
+      <h2 class="font-serif text-3xl mb-6" style="color:#f5f5ff;">📚 Apa itu Perpustakaan Digital?</h2>
+      <p class="leading-relaxed opacity-80 mb-6">Perpustakaan Digital adalah sistem informasi yang mengelola koleksi buku, peminjaman, pengembalian, dan data anggota secara elektronik menggunakan <strong style="color:#c4b5fd;">database</strong> sebagai penyimpan data utama.</p>
+      <h3 class="font-semibold text-xl mb-4" style="color:#c4b5fd;">Komponen Utama Sistem:</h3>
+      <div class="grid md:grid-cols-3 gap-4">
+       <div class="rounded-xl p-5 card-hover" style="background:#232440;">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-3" style="background:#7c3aed33;"><i data-lucide="database" style="width:20px;height:20px;color:#7c3aed;"></i>
+        </div>
+        <h4 class="font-semibold mb-2">Database (MySQL)</h4>
+        <p class="text-sm opacity-70">Menyimpan seluruh data: buku, anggota, transaksi peminjaman &amp; pengembalian.</p>
+       </div>
+       <div class="rounded-xl p-5 card-hover" style="background:#232440;">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-3" style="background:#3b82f633;"><i data-lucide="link" style="width:20px;height:20px;color:#3b82f6;"></i>
+        </div>
+        <h4 class="font-semibold mb-2">Koneksi (PHP/PDO)</h4>
+        <p class="text-sm opacity-70">Menjembatani aplikasi web dengan database server menggunakan PHP.</p>
+       </div>
+       <div class="rounded-xl p-5 card-hover" style="background:#232440;">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-3" style="background:#10b98133;"><i data-lucide="repeat" style="width:20px;height:20px;color:#10b981;"></i>
+        </div>
+        <h4 class="font-semibold mb-2">CRUD Operations</h4>
+        <p class="text-sm opacity-70">Create, Read, Update, Delete — 4 operasi dasar manipulasi data.</p>
+       </div>
+      </div>
+     </div>
+     <div class="rounded-2xl p-8" style="background:#1a1b2e;">
+      <h3 class="font-semibold text-xl mb-4" style="color:#c4b5fd;">🏗️ Arsitektur Sistem</h3>
+      <div class="flex flex-col md:flex-row items-center justify-center gap-3 py-6">
+       <div class="rounded-xl px-6 py-4 text-center" style="background:#232440;">
+        <div class="text-2xl mb-1">
+         🌐
+        </div>
+        <div class="font-semibold text-sm">
+         Browser
+        </div>
+        <div class="text-xs opacity-50">
+         HTML/CSS/JS
+        </div>
+       </div>
+       <div class="text-2xl opacity-40 rotate-90 md:rotate-0">
+        →
+       </div>
+       <div class="rounded-xl px-6 py-4 text-center" style="background:#232440;">
+        <div class="text-2xl mb-1">
+         ⚙️
+        </div>
+        <div class="font-semibold text-sm">
+         Web Server
+        </div>
+        <div class="text-xs opacity-50">
+         Apache + PHP
+        </div>
+       </div>
+       <div class="text-2xl opacity-40 rotate-90 md:rotate-0">
+        →
+       </div>
+       <div class="rounded-xl px-6 py-4 text-center" style="background:#232440;">
+        <div class="text-2xl mb-1">
+         🗄️
+        </div>
+        <div class="font-semibold text-sm">
+         Database
+        </div>
+        <div class="text-xs opacity-50">
+         MySQL/MariaDB
+        </div>
+       </div>
+      </div>
+      <p class="text-sm opacity-60 text-center mt-2">Alur: User → Browser → PHP (Server) → MySQL (Database) → Response kembali ke User</p>
+     </div>
+     <div class="rounded-2xl p-8" style="background:#1a1b2e;">
+      <h3 class="font-semibold text-xl mb-4" style="color:#c4b5fd;">🛠️ Tools yang Dibutuhkan</h3>
+      <div class="grid md:grid-cols-2 gap-3">
+       <div class="flex items-start gap-3 p-4 rounded-lg" style="background:#232440;">
+        <span class="text-lg">1.</span>
+        <div><strong>XAMPP / Laragon</strong>
+         <p class="text-sm opacity-60">Paket Apache + MySQL + PHP untuk development lokal</p>
+        </div>
+       </div>
+       <div class="flex items-start gap-3 p-4 rounded-lg" style="background:#232440;">
+        <span class="text-lg">2.</span>
+        <div><strong>phpMyAdmin</strong>
+         <p class="text-sm opacity-60">GUI untuk mengelola database MySQL via browser</p>
+        </div>
+       </div>
+       <div class="flex items-start gap-3 p-4 rounded-lg" style="background:#232440;">
+        <span class="text-lg">3.</span>
+        <div><strong>VS Code / Sublime Text</strong>
+         <p class="text-sm opacity-60">Code editor untuk menulis PHP, SQL, HTML</p>
+        </div>
+       </div>
+       <div class="flex items-start gap-3 p-4 rounded-lg" style="background:#232440;">
+        <span class="text-lg">4.</span>
+        <div><strong>Browser Modern</strong>
+         <p class="text-sm opacity-60">Chrome/Firefox untuk testing aplikasi web</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </section><!-- Section 1: Database -->
+    <section id="sec-1" class="fade-in space-y-8 hidden">
+     <div class="rounded-2xl p-8" style="background:#1a1b2e;">
+      <h2 class="font-serif text-3xl mb-6" style="color:#f5f5ff;">🗄️ Pembuatan Database</h2>
+      <h3 class="font-semibold text-xl mb-4" style="color:#c4b5fd;">Langkah 1: Membuat Database</h3>
+      <p class="opacity-80 mb-4">Buka phpMyAdmin atau MySQL CLI, lalu jalankan perintah berikut:</p>
+      <div class="code-block p-5 mb-6 font-mono text-sm leading-relaxed">
+       <pre><span class="cm">-- Membuat database perpustakaan</span>
+<span class="kw">CREATE DATABASE</span> <span class="fn">db_perpustakaan</span>
+  <span class="kw">CHARACTER SET</span> utf8mb4
+  <span class="kw">COLLATE</span> utf8mb4_general_ci;
+
+<span class="cm">-- Menggunakan database</span>
+<span class="kw">USE</span> <span class="fn">db_perpustakaan</span>;</pre>
+      </div>
+      <h3 class="font-semibold text-xl mb-4" style="color:#c4b5fd;">Langkah 2: Tabel Buku</h3>
+      <div class="code-block p-5 mb-6 font-mono text-sm leading-relaxed">
+       <pre><span class="kw">CREATE TABLE</span> <span class="fn">buku</span> (
+  <span class="var">id_buku</span>      <span class="type">INT</span> <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+  <span class="var">judul</span>        <span class="type">VARCHAR(255)</span> <span class="kw">NOT NULL</span>,
+  <span class="var">pengarang</span>    <span class="type">VARCHAR(150)</span> <span class="kw">NOT NULL</span>,
+  <span class="var">penerbit</span>     <span class="type">VARCHAR(150)</span>,
+  <span class="var">tahun_terbit</span> <span class="type">YEAR</span>,
+  <span class="var">isbn</span>         <span class="type">VARCHAR(20)</span> <span class="kw">UNIQUE</span>,
+  <span class="var">kategori</span>     <span class="type">ENUM</span>(<span class="str">'Fiksi'</span>,<span class="str">'Non-Fiksi'</span>,<span class="str">'Sains'</span>,
+                     <span class="str">'Teknologi'</span>,<span class="str">'Sejarah'</span>,<span class="str">'Lainnya'</span>),
+  <span class="var">stok</span>         <span class="type">INT</span> <span class="kw">DEFAULT</span> <span class="num">1</span>,
+  <span class="var">created_at</span>   <span class="type">TIMESTAMP</span> <span class="kw">DEFAULT CURRENT_TIMESTAMP</span>
+);</pre>
+      </div>
+      <h3 class="font-semibold text-xl mb-4" style="color:#c4b5fd;">Langkah 3: Tabel Anggota</h3>
+      <div class="code-block p-5 mb-6 font-mono text-sm leading-relaxed">
+       <pre><span class="kw">CREATE TABLE</span> <span class="fn">anggota</span> (
+  <span class="var">id_anggota</span>   <span class="type">INT</span> <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+  <span class="var">nama</span>         <span class="type">VARCHAR(100)</span> <span class="kw">NOT NULL</span>,
+  <span class="var">email</span>        <span class="type">VARCHAR(100)</span> <span class="kw">UNIQUE</span>,
+  <span class="var">no_telepon</span>   <span class="type">VARCHAR(15)</span>,
+  <span class="var">alamat</span>       <span class="type">TEXT</span>,
+  <span class="var">tgl_daftar</span>   <span class="type">DATE</span> <span class="kw">DEFAULT</span> (<span class="fn">CURRENT_DATE</span>)
+);</pre>
+      </div>
+      <h3 class="font-semibold text-xl mb-4" style="color:#c4b5fd;">Langkah 4: Tabel Peminjaman</h3>
+      <div class="code-block p-5 font-mono text-sm leading-relaxed">
+       <pre><span class="kw">CREATE TABLE</span> <span class="fn">peminjaman</span> (
+  <span class="var">id_pinjam</span>    <span class="type">INT</span> <span class="kw">AUTO_INCREMENT PRIMARY KEY</span>,
+  <span class="var">id_anggota</span>   <span class="type">INT</span> <span class="kw">NOT NULL</span>,
+  <span class="var">id_buku</span>      <span class="type">INT</span> <span class="kw">NOT NULL</span>,
+  <span class="var">tgl_pinjam</span>   <span class="type">DATE</span> <span class="kw">NOT NULL</span>,
+  <span class="var">tgl_kembali</span>  <span class="type">DATE</span>,
+  <span class="var">status</span>       <span class="type">ENUM</span>(<span class="str">'Dipinjam'</span>,<span class="str">'Dikembalikan'</span>,<span class="str">'Terlambat'</span>)
+               <span class="kw">DEFAULT</span> <span class="str">'Dipinjam'</span>,
+
+  <span class="kw">FOREIGN KEY</span> (<span class="var">id_anggota</span>)
+    <span class="kw">REFERENCES</span> <span class="fn">anggota</span>(<span class="var">id_anggota</span>)
+    <span class="kw">ON DELETE RESTRICT</span>,
+
+  <span class="kw">FOREIGN KEY</span> (<span class="var">id_buku</span>)
+    <span class="kw">REFERENCES</span> <span class="fn">buku</span>(<span class="var">id_buku</span>)
+    <span class="kw">ON DELETE RESTRICT</span>
+);</pre>
+      </div>
+     </div><!-- ERD Diagram -->
+     <div class="rounded-2xl p-8" style="background:#1a1b2e;">
+      <h3 class="font-semibold text-xl mb-6" style="color:#c4b5fd;">📊 Entity Relationship Diagram (ERD)</h3>
+      <div class="flex flex-col md:flex-row items-center justify-center gap-6">
+       <div class="rounded-xl p-5 w-full md:w-56" style="background:#232440;border:2px solid #7c3aed;">
+        <h4 class="font-bold text-center mb-3" style="color:#7c3aed;">ANGGOTA</h4>
+        <div class="font-mono text-xs space-y-1 opacity-80">
+         <div>
+          🔑 id_anggota (PK)
+         </div>
+         <div>
+          &nbsp;&nbsp; nama
+         </div>
+         <div>
+          &nbsp;&nbsp; email
+         </div>
+         <div>
+          &nbsp;&nbsp; no_telepon
+         </div>
+         <div>
+          &nbsp;&nbsp; alamat
+         </div>
+         <div>
+          &nbsp;&nbsp; tgl_daftar
+         </div>
+        </div>
+       </div>
+       <div class="text-center">
+        <div class="font-mono text-xs opacity-60 mb-1">
+         1 : N
+        </div>
+        <div class="text-2xl">
+         ⟷
+        </div>
+       </div>
+       <div class="rounded-xl p-5 w-full md:w-56" style="background:#232440;border:2px solid #10b981;">
+        <h4 class="font-bold text-center mb-3" style="color:#10b981;">PEMINJAMAN</h4>
+        <div class="font-mono text-xs space-y-1 opacity-80">
+         <div>
+          🔑 id_pinjam (PK)
+         </div>
+         <div>
+          🔗 id_anggota (FK)
+         </div>
+         <div>
+          🔗 id_buku (FK)
+         </div>
+         <div>
+          &nbsp;&nbsp; tgl_pinjam
+         </div>
+         <div>
+          &nbsp;&nbsp; tgl_kembali
+         </div>
+         <div>
+          &nbsp;&nbsp; status
+         </div>
+        </div>
+       </div>
+       <div class="text-center">
+        <div class="font-mono text-xs opacity-60 mb-1">
+         N : 1
+        </div>
+        <div class="text-2xl">
+         ⟷
+        </div>
+       </div>
+       <div class="rounded-xl p-5 w-full md:w-56" style="background:#232440;border:2px solid #3b82f6;">
+        <h4 class="font-bold text-center mb-3" style="color:#3b82f6;">BUKU</h4>
+        <div class="font-mono text-xs space-y-1 opacity-80">
+         <div>
+          🔑 id_buku (PK)
+         </div>
+         <div>
+          &nbsp;&nbsp; judul
+         </div>
+         <div>
+          &nbsp;&nbsp; pengarang
+         </div>
+         <div>
+          &nbsp;&nbsp; penerbit
+         </div>
+         <div>
+          &nbsp;&nbsp; tahun_terbit
+         </div>
+         <div>
+          &nbsp;&nbsp; isbn
+         </div>
+         <div>
+          &nbsp;&nbsp; kategori
+         </div>
+         <div>
+          &nbsp;&nbsp; stok
+         </div>
+        </div>
+       </div>
+      </div>
+     </div><!-- Tipe Data -->
+     <div class="rounded-2xl p-8" style="background:#1a1b2e;">
+      <h3 class="font-semibold text-xl mb-4" style="color:#c4b5fd;">📝 Penjelasan Tipe Data</h3>
+      <div class="overflow-x-auto">
+       <table class="w-full text-sm">
+        <thead>
+         <tr style="border-bottom:2px solid #2a2b3d;">
+          <th class="text-left py-3 px-4 font-semibold" style="color:#c4b5fd;">Tipe Data</th>
+          <th class="text-left py-3 px-4 font-semibold" style="color:#c4b5fd;">Kegunaan</th>
+          <th class="text-left py-3 px-4 font-semibold" style="color:#c4b5fd;">Contoh</th>
+         </tr>
+        </thead>
+        <tbody class="opacity-80">
+         <tr style="border-bottom:1px solid #2a2b3d;">
+          <td class="py-3 px-4 font-mono text-xs" style="color:#ffcb6b;">INT</td>
+          <td class="py-3 px-4">Bilangan bulat (ID, stok)</td>
+          <td class="py-3 px-4">1, 42, 100</td>
+         </tr>
+         <tr style="border-bottom:1px solid #2a2b3d;">
+          <td class="py-3 px-4 font-mono text-xs" style="color:#ffcb6b;">VARCHAR(n)</td>
+          <td class="py-3 px-4">Teks dengan panjang maks n</td>
+          <td class="py-3 px-4">"Harry Potter"</td>
+         </tr>
+         <tr style="border-bottom:1px solid #2a2b3d;">
+          <td class="py-3 px-4 font-mono text-xs" style="color:#ffcb6b;">TEXT</td>
+          <td class="py-3 px-4">Teks panjang (alamat, deskripsi)</td>
+          <td class="py-3 px-4">"Jl. Merdeka No.1..."</td>
+         </tr>
+         <tr style="border-bottom:1px solid #2a2b3d;">
+          <td class="py-3 px-4 font-mono text-xs" style="color:#ffcb6b;">DATE / YEAR</td>
+          <td class="py-3 px-4">Tanggal atau tahun</td>
+          <td class="py-3 px-4">2024-01-15, 2023</td>
+         </tr>
+         <tr style="border-bottom:1px solid #2a2b3d;">
+          <td class="py-3 px-4 font-mono text-xs" style="color:#ffcb6b;">ENUM</td>
+          <td class="py-3 px-4">Nilai terbatas (pilihan)</td>
+          <td class="py-3 px-4">'Fiksi', 'Sains'</td>
+         </tr>
+         <tr>
+          <td class="py-3 px-4 font-mono text-xs" style="color:#ffcb6b;">TIMESTAMP</td>
+          <td class="py-3 px-4">Tanggal + waktu otomatis</td>
+          <td class="py-3 px-4">2024-01-15 08:30:00</td>
+         </tr>
+        </tbody>
+       </table>
+      </div>
+     </div>
+    </section><!-- Section 2: Koneksi -->
+    <section id="sec-2" class="fade-in space-y-8 hidden">
+     <div class="rounded-2xl p-8" style="background:#1a1b2e;">
+      <h2 class="font-serif text-3xl mb-6" style="color:#f5f5ff;">🔗 Koneksi Database</h2>
+      <h3 class="font-semibold text-xl mb-3" style="color:#c4b5fd;">Metode 1: MySQLi (Prosedural)</h3>
+      <p class="opacity-70 mb-4 text-sm">Cara paling sederhana, cocok untuk pemula.</p>
+      <div class="code-block p-5 mb-6 font-mono text-sm leading-relaxed">
+       <pre><span class="cm">// File: koneksi_mysqli.php</span>
+<span class="var">&lt;?php</span>
+<span class="var">$host</span>   = <span class="str">"localhost"</span>;
+<span class="var">$user</span>   = <span class="str">"root"</span>;
+<span class="var">$pass</span>   = <span class="str">""</span>;
+<span class="var">$dbname</span> = <span class="str">"db_perpustakaan"</span>;
+
+<span class="cm">// Membuat koneksi</span>
+<span class="var">$conn</span> = <span class="fn">mysqli_connect</span>(<span class="var">$host</span>, <span class="var">$user</span>, <span class="var">$pass</span>, <span class="var">$dbname</span>);
+
+<span class="cm">// Cek koneksi berhasil atau tidak</span>
+<span class="kw">if</span> (!<span class="var">$conn</span>) {
+    <span class="fn">die</span>(<span class="str">"Koneksi gagal: "</span> . <span class="fn">mysqli_connect_error</span>());
+}
+
+<span class="kw">echo</span> <span class="str">"Koneksi berhasil!"</span>;
+<span class="var">?&gt;</span></pre>
+      </div>
+      <h3 class="font-semibold text-xl mb-3" style="color:#c4b5fd;">Metode 2: PDO (Direkomendasikan) ⭐</h3>
+      <p class="opacity-70 mb-4 text-sm">Lebih aman, mendukung prepared statements, dan bisa digunakan untuk berbagai database.</p>
+      <div class="code-block p-5 mb-6 font-mono text-sm leading-relaxed">
+       <pre><span class="cm">// File: koneksi.php</span>
+<span class="var">&lt;?php</span>
+<span class="var">$host</span>   = <span class="str">"localhost"</span>;
+<span class="var">$dbname</span> = <span class="str">"db_perpustakaan"</span>;
+<span class="var">$user</span>   = <span class="str">"root"</span>;
+<span class="var">$pass</span>   = <span class="str">""</span>;
+
+<span class="kw">try</span> {
+    <span class="var">$pdo</span> = <span class="kw">new</span> <span class="type">PDO</span>(
+        <span class="str">"mysql:host=</span><span class="var">$host</span><span class="str">;dbname=</span><span class="var">$dbname</span><span class="str">;charset=utf8mb4"</span>,
+        <span class="var">$user</span>,
+        <span class="var">$pass</span>,
+        [
+            <span class="type">PDO</span>::<span class="var">ATTR_ERRMODE</span>
+                =&gt; <span class="type">PDO</span>::<span class="var">ERRMODE_EXCEPTION</span>,
+            <span class="type">PDO</span>::<span class="var">ATTR_DEFAULT_FETCH_MODE</span>
+                =&gt; <span class="type">PDO</span>::<span class="var">FETCH_ASSOC</span>,
+            <span class="type">PDO</span>::<span class="var">ATTR_EMULATE_PREPARES</span>
+                =&gt; <span class="kw">false</span>
+        ]
+    );
+} <span class="kw">catch</span> (<span class="type">PDOException</span> <span class="var">$e</span>) {
+    <span class="fn">die</span>(<span class="str">"Koneksi gagal: "</span> . <span class="var">$e</span>-&gt;<span class="fn">getMessage</span>());
+}
+<span class="var">?&gt;</span></pre>
+      </div>
+      <div class="rounded-xl p-5" style="background:#232440;">
+       <h4 class="font-semibold mb-3" style="color:#fbbf24;">⚠️ Perbandingan MySQLi vs PDO</h4>
+       <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+         <thead>
+          <tr style="border-bottom:2px solid #2a2b3d;">
+           <th class="text-left py-2 px-3" style="color:#c4b5fd;">Fitur</th>
+           <th class="text-left py-2 px-3" style="color:#c4b5fd;">MySQLi</th>
+           <th class="text-left py-2 px-3" style="color:#c4b5fd;">PDO</th>
+          </tr>
+         </thead>
+         <tbody class="opacity-80">
+          <tr style="border-bottom:1px solid #2a2b3d;">
+           <td class="py-2 px-3">Database Support</td>
+           <td class="py-2 px-3">MySQL saja</td>
+           <td class="py-2 px-3 font-semibold" style="color:#10b981;">12+ database</td>
+          </tr>
+          <tr style="border-bottom:1px solid #2a2b3d;">
+           <td class="py-2 px-3">Prepared Statements</td>
+           <td class="py-2 px-3">✅ Ya</td>
+           <td class="py-2 px-3">✅ Ya</td>
+          </tr>
+          <tr style="border-bottom:1px solid #2a2b3d;">
+           <td class="py-2 px-3">Named Parameters</td>
+           <td class="py-2 px-3">❌ Tidak</td>
+           <td class="py-2 px-3 font-semibold" style="color:#10b981;">✅ Ya</td>
+          </tr>
+          <tr>
+           <td class="py-2 px-3">OOP &amp; Prosedural</td>
+           <td class="py-2 px-3">✅ Keduanya</td>
+           <td class="py-2 px-3">OOP saja</td>
+          </tr>
+         </tbody>
+        </table>
+       </div>
+      </div>
+     </div>
+     <div class="rounded-2xl p-8" style="background:#1a1b2e;">
+      <h3 class="font-semibold text-xl mb-4" style="color:#c4b5fd;">🔒 Keamanan: Prepared Statements</h3>
+      <p class="opacity-80 mb-4">Prepared Statements mencegah <strong style="color:#ef4444;">SQL Injection</strong> — serangan paling umum pada aplikasi web.</p>
+      <div class="grid md:grid-cols-2 gap-4">
+       <div class="rounded-xl p-5" style="background:#2d1b1b;border:1px solid #ef4444;">
+        <h4 class="font-semibold mb-2" style="color:#ef4444;">❌ SALAH (Rentan SQL Injection)</h4>
+        <div class="font-mono text-xs opacity-80 leading-relaxed">
+         $sql = "SELECT * FROM buku<br>
+          &nbsp; WHERE judul = '<span style="color:#ef4444;">$_GET['q']</span>'";<br>
+          $result = mysqli_query($conn, $sql);
+        </div>
+       </div>
+       <div class="rounded-xl p-5" style="background:#1b2d1b;border:1px solid #10b981;">
+        <h4 class="font-semibold mb-2" style="color:#10b981;">✅ BENAR (Prepared Statement)</h4>
+        <div class="font-mono text-xs opacity-80 leading-relaxed">
+         $stmt = $pdo-&gt;prepare(<br>
+          &nbsp; "SELECT * FROM buku<br>
+          &nbsp;&nbsp; WHERE judul = <span style="color:#10b981;">:judul</span>"<br>
+          );<br>
+          $stmt-&gt;execute([<span style="color:#10b981;">':judul'</span> =&gt; $q]);
+        </div>
+       </div>
+      </div>
+     </div>
+    </section><!-- Section 3: CRUD -->
+    <section id="sec-3" class="fade-in space-y-8 hidden">
+     <div class="rounded-2xl p-8" style="background:#1a1b2e;">
+      <h2 class="font-serif text-3xl mb-6" style="color:#f5f5ff;">🔄 Operasi CRUD Lengkap</h2><!-- CREATE -->
+      <div class="mb-8">
+       <div class="flex items-center gap-3 mb-4">
+        <span class="px-3 py-1 rounded-lg font-bold text-sm" style="background:#10b981;color:#fff;">C</span>
+        <h3 class="font-semibold text-xl" style="color:#10b981;">CREATE — Tambah Data Buku</h3>
+       </div>
+       <div class="code-block p-5 font-mono text-sm leading-relaxed">
+        <pre><span class="cm">// File: tambah_buku.php</span>
+<span class="var">&lt;?php</span>
+<span class="kw">require_once</span> <span class="str">'koneksi.php'</span>;
+
+<span class="kw">if</span> (<span class="var">$_SERVER</span>[<span class="str">'REQUEST_METHOD'</span>] === <span class="str">'POST'</span>) {
+    <span class="var">$sql</span> = <span class="str">"INSERT INTO buku
+            (judul, pengarang, penerbit,
+             tahun_terbit, isbn, kategori, stok)
+            VALUES
+            (:judul, :pengarang, :penerbit,
+             :tahun, :isbn, :kategori, :stok)"</span>;
+
+    <span class="var">$stmt</span> = <span class="var">$pdo</span>-&gt;<span class="fn">prepare</span>(<span class="var">$sql</span>);
+
+    <span class="var">$stmt</span>-&gt;<span class="fn">execute</span>([
+        <span class="str">':judul'</span>     =&gt; <span class="var">$_POST</span>[<span class="str">'judul'</span>],
+        <span class="str">':pengarang'</span> =&gt; <span class="var">$_POST</span>[<span class="str">'pengarang'</span>],
+        <span class="str">':penerbit'</span>  =&gt; <span class="var">$_POST</span>[<span class="str">'penerbit'</span>],
+        <span class="str">':tahun'</span>     =&gt; <span class="var">$_POST</span>[<span class="str">'tahun'</span>],
+        <span class="str">':isbn'</span>      =&gt; <span class="var">$_POST</span>[<span class="str">'isbn'</span>],
+        <span class="str">':kategori'</span>  =&gt; <span class="var">$_POST</span>[<span class="str">'kategori'</span>],
+        <span class="str">':stok'</span>      =&gt; <span class="var">$_POST</span>[<span class="str">'stok'</span>]
+    ]);
+
+    <span class="kw">echo</span> <span class="str">"Buku berhasil ditambahkan!"</span>;
+}
+<span class="var">?&gt;</span></pre>
+       </div>
+      </div><!-- READ -->
+      <div class="mb-8">
+       <div class="flex items-center gap-3 mb-4">
+        <span class="px-3 py-1 rounded-lg font-bold text-sm" style="background:#3b82f6;color:#fff;">R</span>
+        <h3 class="font-semibold text-xl" style="color:#3b82f6;">READ — Tampilkan Data Buku</h3>
+       </div>
+       <div class="code-block p-5 font-mono text-sm leading-relaxed">
+        <pre><span class="cm">// File: daftar_buku.php</span>
+<span class="var">&lt;?php</span>
+<span class="kw">require_once</span> <span class="str">'koneksi.php'</span>;
+
+<span class="cm">// Ambil semua buku</span>
+<span class="var">$stmt</span> = <span class="var">$pdo</span>-&gt;<span class="fn">query</span>(
+    <span class="str">"SELECT * FROM buku ORDER BY judul ASC"</span>
+);
+<span class="var">$buku_list</span> = <span class="var">$stmt</span>-&gt;<span class="fn">fetchAll</span>();
+
+<span class="cm">// Cari buku berdasarkan judul</span>
+<span class="var">$keyword</span> = <span class="var">$_GET</span>[<span class="str">'cari'</span>] ?? <span class="str">''</span>;
+<span class="kw">if</span> (<span class="var">$keyword</span>) {
+    <span class="var">$stmt</span> = <span class="var">$pdo</span>-&gt;<span class="fn">prepare</span>(
+        <span class="str">"SELECT * FROM buku
+         WHERE judul LIKE :keyword
+         OR pengarang LIKE :keyword"</span>
+    );
+    <span class="var">$stmt</span>-&gt;<span class="fn">execute</span>([
+        <span class="str">':keyword'</span> =&gt; <span class="str">"%</span><span class="var">$keyword</span><span class="str">%"</span>
+    ]);
+    <span class="var">$buku_list</span> = <span class="var">$stmt</span>-&gt;<span class="fn">fetchAll</span>();
+}
+<span class="var">?&gt;</span></pre>
+       </div>
+      </div><!-- UPDATE -->
+      <div class="mb-8">
+       <div class="flex items-center gap-3 mb-4">
+        <span class="px-3 py-1 rounded-lg font-bold text-sm" style="background:#f59e0b;color:#fff;">U</span>
+        <h3 class="font-semibold text-xl" style="color:#f59e0b;">UPDATE — Edit Data Buku</h3>
+       </div>
+       <div class="code-block p-5 font-mono text-sm leading-relaxed">
+        <pre><span class="cm">// File: edit_buku.php</span>
+<span class="var">&lt;?php</span>
+<span class="kw">require_once</span> <span class="str">'koneksi.php'</span>;
+
+<span class="kw">if</span> (<span class="var">$_SERVER</span>[<span class="str">'REQUEST_METHOD'</span>] === <span class="str">'POST'</span>) {
+    <span class="var">$sql</span> = <span class="str">"UPDATE buku SET
+            judul      = :judul,
+            pengarang  = :pengarang,
+            penerbit   = :penerbit,
+            tahun_terbit = :tahun,
+            isbn       = :isbn,
+            kategori   = :kategori,
+            stok       = :stok
+            WHERE id_buku = :id"</span>;
+
+    <span class="var">$stmt</span> = <span class="var">$pdo</span>-&gt;<span class="fn">prepare</span>(<span class="var">$sql</span>);
+
+    <span class="var">$stmt</span>-&gt;<span class="fn">execute</span>([
+        <span class="str">':judul'</span>     =&gt; <span class="var">$_POST</span>[<span class="str">'judul'</span>],
+        <span class="str">':pengarang'</span> =&gt; <span class="var">$_POST</span>[<span class="str">'pengarang'</span>],
+        <span class="str">':penerbit'</span>  =&gt; <span class="var">$_POST</span>[<span class="str">'penerbit'</span>],
+        <span class="str">':tahun'</span>     =&gt; <span class="var">$_POST</span>[<span class="str">'tahun'</span>],
+        <span class="str">':isbn'</span>      =&gt; <span class="var">$_POST</span>[<span class="str">'isbn'</span>],
+        <span class="str">':kategori'</span>  =&gt; <span class="var">$_POST</span>[<span class="str">'kategori'</span>],
+        <span class="str">':stok'</span>      =&gt; <span class="var">$_POST</span>[<span class="str">'stok'</span>],
+        <span class="str">':id'</span>        =&gt; <span class="var">$_POST</span>[<span class="str">'id_buku'</span>]
+    ]);
+
+    <span class="kw">echo</span> <span class="str">"Buku berhasil diperbarui!"</span>;
+}
+<span class="var">?&gt;</span></pre>
+       </div>
+      </div><!-- DELETE -->
+      <div>
+       <div class="flex items-center gap-3 mb-4">
+        <span class="px-3 py-1 rounded-lg font-bold text-sm" style="background:#ef4444;color:#fff;">D</span>
+        <h3 class="font-semibold text-xl" style="color:#ef4444;">DELETE — Hapus Data Buku</h3>
+       </div>
+       <div class="code-block p-5 font-mono text-sm leading-relaxed">
+        <pre><span class="cm">// File: hapus_buku.php</span>
+<span class="var">&lt;?php</span>
+<span class="kw">require_once</span> <span class="str">'koneksi.php'</span>;
+
+<span class="var">$id</span> = <span class="var">$_GET</span>[<span class="str">'id'</span>] ?? <span class="kw">null</span>;
+
+<span class="kw">if</span> (<span class="var">$id</span>) {
+    <span class="cm">// Cek apakah buku sedang dipinjam</span>
+    <span class="var">$cek</span> = <span class="var">$pdo</span>-&gt;<span class="fn">prepare</span>(
+        <span class="str">"SELECT COUNT(*) FROM peminjaman
+         WHERE id_buku = :id
+         AND status = 'Dipinjam'"</span>
+    );
+    <span class="var">$cek</span>-&gt;<span class="fn">execute</span>([<span class="str">':id'</span> =&gt; <span class="var">$id</span>]);
+
+    <span class="kw">if</span> (<span class="var">$cek</span>-&gt;<span class="fn">fetchColumn</span>() &gt; <span class="num">0</span>) {
+        <span class="kw">echo</span> <span class="str">"Tidak bisa dihapus!
+              Buku sedang dipinjam."</span>;
+    } <span class="kw">else</span> {
+        <span class="var">$stmt</span> = <span class="var">$pdo</span>-&gt;<span class="fn">prepare</span>(
+            <span class="str">"DELETE FROM buku
+             WHERE id_buku = :id"</span>
+        );
+        <span class="var">$stmt</span>-&gt;<span class="fn">execute</span>([<span class="str">':id'</span> =&gt; <span class="var">$id</span>]);
+        <span class="kw">echo</span> <span class="str">"Buku berhasil dihapus!"</span>;
+    }
+}
+<span class="var">?&gt;</span></pre>
+       </div>
+      </div>
+     </div>
+    </section><!-- Section 4: Relasi -->
+    <section id="sec-4" class="fade-in space-y-8 hidden">
+     <div class="rounded-2xl p-8" style="background:#1a1b2e;">
+      <h2 class="font-serif text-3xl mb-6" style="color:#f5f5ff;">🔗 Relasi Antar Tabel &amp; Query Lanjutan</h2>
+      <h3 class="font-semibold text-xl mb-4" style="color:#c4b5fd;">JOIN — Menggabungkan Data dari Beberapa Tabel</h3>
+      <p class="opacity-80 mb-4">Untuk menampilkan data peminjaman beserta nama anggota dan judul buku:</p>
+      <div class="code-block p-5 mb-6 font-mono text-sm leading-relaxed">
+       <pre><span class="kw">SELECT</span>
+    p.<span class="var">id_pinjam</span>,
+    a.<span class="var">nama</span>        <span class="kw">AS</span> <span class="str">nama_anggota</span>,
+    b.<span class="var">judul</span>       <span class="kw">AS</span> <span class="str">judul_buku</span>,
+    p.<span class="var">tgl_pinjam</span>,
+    p.<span class="var">tgl_kembali</span>,
+    p.<span class="var">status</span>
+<span class="kw">FROM</span> <span class="fn">peminjaman</span> p
+<span class="kw">INNER JOIN</span> <span class="fn">anggota</span> a
+    <span class="kw">ON</span> p.<span class="var">id_anggota</span> = a.<span class="var">id_anggota</span>
+<span class="kw">INNER JOIN</span> <span class="fn">buku</span> b
+    <span class="kw">ON</span> p.<span class="var">id_buku</span> = b.<span class="var">id_buku</span>
+<span class="kw">ORDER BY</span> p.<span class="var">tgl_pinjam</span> <span class="kw">DESC</span>;</pre>
+      </div>
+      <h3 class="font-semibold text-xl mb-4" style="color:#c4b5fd;">Proses Peminjaman (PHP)</h3>
+      <div class="code-block p-5 mb-6 font-mono text-sm leading-relaxed">
+       <pre><span class="cm">// File: proses_pinjam.php</span>
+<span class="var">&lt;?php</span>
+<span class="kw">require_once</span> <span class="str">'koneksi.php'</span>;
+
+<span class="kw">try</span> {
+    <span class="cm">// Mulai transaksi database</span>
+    <span class="var">$pdo</span>-&gt;<span class="fn">beginTransaction</span>();
+
+    <span class="cm">// 1. Cek stok buku</span>
+    <span class="var">$cek</span> = <span class="var">$pdo</span>-&gt;<span class="fn">prepare</span>(
+        <span class="str">"SELECT stok FROM buku
+         WHERE id_buku = :id FOR UPDATE"</span>
+    );
+    <span class="var">$cek</span>-&gt;<span class="fn">execute</span>([<span class="str">':id'</span> =&gt; <span class="var">$_POST</span>[<span class="str">'id_buku'</span>]]);
+    <span class="var">$stok</span> = <span class="var">$cek</span>-&gt;<span class="fn">fetchColumn</span>();
+
+    <span class="kw">if</span> (<span class="var">$stok</span> &lt; <span class="num">1</span>) {
+        <span class="kw">throw new</span> <span class="type">Exception</span>(<span class="str">"Stok habis!"</span>);
+    }
+
+    <span class="cm">// 2. Catat peminjaman</span>
+    <span class="var">$pdo</span>-&gt;<span class="fn">prepare</span>(
+        <span class="str">"INSERT INTO peminjaman
+         (id_anggota, id_buku, tgl_pinjam)
+         VALUES (:anggota, :buku, CURDATE())"</span>
+    )-&gt;<span class="fn">execute</span>([
+        <span class="str">':anggota'</span> =&gt; <span class="var">$_POST</span>[<span class="str">'id_anggota'</span>],
+        <span class="str">':buku'</span>    =&gt; <span class="var">$_POST</span>[<span class="str">'id_buku'</span>]
+    ]);
+
+    <span class="cm">// 3. Kurangi stok</span>
+    <span class="var">$pdo</span>-&gt;<span class="fn">prepare</span>(
+        <span class="str">"UPDATE buku SET stok = stok - 1
+         WHERE id_buku = :id"</span>
+    )-&gt;<span class="fn">execute</span>([<span class="str">':id'</span> =&gt; <span class="var">$_POST</span>[<span class="str">'id_buku'</span>]]);
+
+    <span class="cm">// Commit semua perubahan</span>
+    <span class="var">$pdo</span>-&gt;<span class="fn">commit</span>();
+    <span class="kw">echo</span> <span class="str">"Peminjaman berhasil!"</span>;
+
+} <span class="kw">catch</span> (<span class="type">Exception</span> <span class="var">$e</span>) {
+    <span class="var">$pdo</span>-&gt;<span class="fn">rollBack</span>();
+    <span class="kw">echo</span> <span class="str">"Error: "</span> . <span class="var">$e</span>-&gt;<span class="fn">getMessage</span>();
+}
+<span class="var">?&gt;</span></pre>
+      </div>
+      <div class="rounded-xl p-5" style="background:#232440;">
+       <h4 class="font-semibold mb-3" style="color:#c4b5fd;">💡 Mengapa Menggunakan Transaction?</h4>
+       <ul class="space-y-2 text-sm opacity-80">
+        <li class="flex items-start gap-2"><span style="color:#10b981;">✓</span> <strong>Atomicity</strong> — Semua operasi berhasil atau semua dibatalkan</li>
+        <li class="flex items-start gap-2"><span style="color:#10b981;">✓</span> <strong>Consistency</strong> — Data selalu dalam keadaan valid</li>
+        <li class="flex items-start gap-2"><span style="color:#10b981;">✓</span> <strong>Contoh</strong> — Jika INSERT peminjaman berhasil tapi UPDATE stok gagal, maka INSERT juga dibatalkan (rollback)</li>
+       </ul>
+      </div>
+     </div>
+     <div class="rounded-2xl p-8" style="background:#1a1b2e;">
+      <h3 class="font-semibold text-xl mb-4" style="color:#c4b5fd;">📊 Query Statistik Berguna</h3>
+      <div class="space-y-4">
+       <div class="code-block p-4 font-mono text-sm leading-relaxed">
+        <pre><span class="cm">-- Buku paling sering dipinjam</span>
+<span class="kw">SELECT</span> b.<span class="var">judul</span>, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> <span class="str">total_pinjam</span>
+<span class="kw">FROM</span> <span class="fn">peminjaman</span> p
+<span class="kw">JOIN</span> <span class="fn">buku</span> b <span class="kw">ON</span> p.<span class="var">id_buku</span> = b.<span class="var">id_buku</span>
+<span class="kw">GROUP BY</span> b.<span class="var">id_buku</span>
+<span class="kw">ORDER BY</span> <span class="str">total_pinjam</span> <span class="kw">DESC LIMIT</span> <span class="num">5</span>;</pre>
+       </div>
+       <div class="code-block p-4 font-mono text-sm leading-relaxed">
+        <pre><span class="cm">-- Anggota dengan peminjaman terlambat</span>
+<span class="kw">SELECT</span> a.<span class="var">nama</span>, <span class="fn">COUNT</span>(*) <span class="kw">AS</span> <span class="str">jml_terlambat</span>
+<span class="kw">FROM</span> <span class="fn">peminjaman</span> p
+<span class="kw">JOIN</span> <span class="fn">anggota</span> a <span class="kw">ON</span> p.<span class="var">id_anggota</span> = a.<span class="var">id_anggota</span>
+<span class="kw">WHERE</span> p.<span class="var">status</span> = <span class="str">'Terlambat'</span>
+<span class="kw">GROUP BY</span> a.<span class="var">id_anggota</span>;</pre>
+       </div>
+      </div>
+     </div>
+    </section><!-- Section 5: Demo CRUD -->
+    <section id="sec-5" class="fade-in space-y-8 hidden">
+     <div class="rounded-2xl p-8" style="background:#1a1b2e;">
+      <h2 class="font-serif text-3xl mb-6" style="color:#f5f5ff;">💻 Script Fungsi CRUD Siap Pakai</h2>
+      <p class="opacity-80 mb-8">Kumpulan fungsi PHP dan JavaScript yang dapat langsung digunakan dalam proyek Perpustakaan Digital. Semua fungsi menggunakan prepared statements untuk keamanan maksimal.</p><!-- Helper Functions -->
+      <div class="mb-8">
+       <h3 class="font-semibold text-xl mb-4" style="color:#c4b5fd;">📦 Helper Functions (Fungsi Pembantu)</h3>
+       <div class="code-block p-5 mb-4 font-mono text-sm leading-relaxed">
+        <pre><span class="cm">// File: helper.php</span>
+<span class="var">&lt;?php</span>
+
+<span class="cm">// 1. Redirect dengan pesan</span>
+<span class="kw">function</span> <span class="fn">redirect</span>(<span class="var">$url</span>, <span class="var">$msg</span> = <span class="str">''</span>, <span class="var">$type</span> = <span class="str">'success'</span>) {
+    <span class="kw">if</span> (<span class="var">$msg</span>) {
+        <span class="var">$_SESSION</span>[<span class="str">'message'</span>] = <span class="var">$msg</span>;
+        <span class="var">$_SESSION</span>[<span class="str">'msg_type'</span>] = <span class="var">$type</span>;
+    }
+    <span class="fn">header</span>(<span class="str">"Location: </span><span class="var">$url</span><span class="str">"</span>);
+    <span class="fn">exit</span>();
+}
+
+<span class="cm">// 2. Validasi input</span>
+<span class="kw">function</span> <span class="fn">validate_input</span>(<span class="var">$data</span>) {
+    <span class="kw">return</span> <span class="fn">htmlspecialchars</span>(
+        <span class="fn">trim</span>(<span class="var">$data</span>),
+        <span class="type">ENT_QUOTES</span>,
+        <span class="str">'UTF-8'</span>
+    );
+}
+
+<span class="cm">// 3. Format tanggal Indonesia</span>
+<span class="kw">function</span> <span class="fn">format_date</span>(<span class="var">$date</span>) {
+    <span class="var">$months</span> = [
+        <span class="str">'Januari'</span>, <span class="str">'Februari'</span>, <span class="str">'Maret'</span>,
+        <span class="str">'April'</span>, <span class="str">'Mei'</span>, <span class="str">'Juni'</span>,
+        <span class="str">'Juli'</span>, <span class="str">'Agustus'</span>, <span class="str">'September'</span>,
+        <span class="str">'Oktober'</span>, <span class="str">'November'</span>, <span class="str">'Desember'</span>
+    ];
+    <span class="var">$dt</span> = <span class="kw">new</span> <span class="type">DateTime</span>(<span class="var">$date</span>);
+    <span class="var">$day</span> = <span class="var">$dt</span>-&gt;<span class="fn">format</span>(<span class="str">'d'</span>);
+    <span class="var">$month</span> = <span class="var">$months</span>[(<span class="kw">int</span>)<span class="var">$dt</span>-&gt;<span class="fn">format</span>(<span class="str">'m'</span>) - <span class="num">1</span>];
+    <span class="var">$year</span> = <span class="var">$dt</span>-&gt;<span class="fn">format</span>(<span class="str">'Y'</span>);
+    <span class="kw">return</span> <span class="str">"</span><span class="var">$day</span><span class="str"> </span><span class="var">$month</span><span class="str"> </span><span class="var">$year</span><span class="str">"</span>;
+}
+
+<span class="cm">// 4. Cek data duplikat</span>
+<span class="kw">function</span> <span class="fn">is_duplicate</span>(<span class="var">$pdo</span>, <span class="var">$table</span>, <span class="var">$field</span>, <span class="var">$value</span>, <span class="var">$exclude_id</span> = <span class="kw">null</span>) {
+    <span class="var">$sql</span> = <span class="str">"SELECT COUNT(*) FROM </span><span class="var">$table</span><span class="str"> WHERE </span><span class="var">$field</span><span class="str"> = :</span><span class="var">$field</span><span class="str">"</span>;
+    <span class="kw">if</span> (<span class="var">$exclude_id</span>) <span class="var">$sql</span> .= <span class="str">" AND id != :id"</span>;
+
+    <span class="var">$stmt</span> = <span class="var">$pdo</span>-&gt;<span class="fn">prepare</span>(<span class="var">$sql</span>);
+    <span class="var">$params</span> = [<span class="str">':'</span> . <span class="var">$field</span> =&gt; <span class="var">$value</span>];
+    <span class="kw">if</span> (<span class="var">$exclude_id</span>) <span class="var">$params</span>[<span class="str">':id'</span>] = <span class="var">$exclude_id</span>;
+
+    <span class="var">$stmt</span>-&gt;<span class="fn">execute</span>(<span class="var">$params</span>);
+    <span class="kw">return</span> <span class="var">$stmt</span>-&gt;<span class="fn">fetchColumn</span>() &gt; <span class="num">0</span>;
+}
+<span class="var">?&gt;</span></pre>
+       </div>
+      </div><!-- CRUD Class -->
+      <div class="mb-8">
+       <h3 class="font-semibold text-xl mb-4" style="color:#c4b5fd;">🎯 Class BukuManager (Manajemen Buku)</h3>
+       <div class="code-block p-5 font-mono text-sm leading-relaxed">
+        <pre><span class="cm">// File: BukuManager.php</span>
+<span class="var">&lt;?php</span>
+<span class="kw">class</span> <span class="type">BukuManager</span> {
+    <span class="kw">private</span> <span class="var">$pdo</span>;
+
+    <span class="kw">public function</span> <span class="fn">__construct</span>(<span class="var">$pdo</span>) {
+        <span class="var">$this</span>-&gt;<span class="var">pdo</span> = <span class="var">$pdo</span>;
+    }
+
+    <span class="cm">// CREATE - Tambah buku baru</span>
+    <span class="kw">public function</span> <span class="fn">tambah</span>(<span class="var">$data</span>) {
+        <span class="var">$sql</span> = <span class="str">"INSERT INTO buku
+                (judul, pengarang, penerbit, tahun_terbit,
+                 isbn, kategori, stok)
+                VALUES (:judul, :pengarang, :penerbit,
+                 :tahun, :isbn, :kategori, :stok)"</span>;
+        <span class="var">$stmt</span> = <span class="var">$this</span>-&gt;<span class="var">pdo</span>-&gt;<span class="fn">prepare</span>(<span class="var">$sql</span>);
+        <span class="kw">return</span> <span class="var">$stmt</span>-&gt;<span class="fn">execute</span>(<span class="var">$data</span>);
+    }
+
+    <span class="cm">// READ - Ambil semua buku</span>
+    <span class="kw">public function</span> <span class="fn">ambil_semua</span>(<span class="var">$sortBy</span> = <span class="str">'judul'</span>) {
+        <span class="var">$sql</span> = <span class="str">"SELECT * FROM buku
+                 ORDER BY </span><span class="var">$sortBy</span><span class="str"> ASC"</span>;
+        <span class="kw">return</span> <span class="var">$this</span>-&gt;<span class="var">pdo</span>-&gt;<span class="fn">query</span>(<span class="var">$sql</span>)
+                        -&gt;<span class="fn">fetchAll</span>();
+    }
+
+    <span class="cm">// READ - Cari buku</span>
+    <span class="kw">public function</span> <span class="fn">cari</span>(<span class="var">$keyword</span>) {
+        <span class="var">$sql</span> = <span class="str">"SELECT * FROM buku
+                WHERE judul LIKE :keyword
+                OR pengarang LIKE :keyword
+                ORDER BY judul ASC"</span>;
+        <span class="var">$stmt</span> = <span class="var">$this</span>-&gt;<span class="var">pdo</span>-&gt;<span class="fn">prepare</span>(<span class="var">$sql</span>);
+        <span class="var">$stmt</span>-&gt;<span class="fn">execute</span>([
+            <span class="str">':keyword'</span> =&gt; <span class="str">"%</span><span class="var">$keyword</span><span class="str">%"</span>
+        ]);
+        <span class="kw">return</span> <span class="var">$stmt</span>-&gt;<span class="fn">fetchAll</span>();
+    }
+
+    <span class="cm">// UPDATE - Edit buku</span>
+    <span class="kw">public function</span> <span class="fn">ubah</span>(<span class="var">$id</span>, <span class="var">$data</span>) {
+        <span class="var">$sql</span> = <span class="str">"UPDATE buku SET
+                judul = :judul, pengarang = :pengarang,
+                penerbit = :penerbit, tahun_terbit = :tahun,
+                isbn = :isbn, kategori = :kategori, stok = :stok
+                WHERE id_buku = :id"</span>;
+        <span class="var">$data</span>[<span class="str">':id'</span>] = <span class="var">$id</span>;
+        <span class="var">$stmt</span> = <span class="var">$this</span>-&gt;<span class="var">pdo</span>-&gt;<span class="fn">prepare</span>(<span class="var">$sql</span>);
+        <span class="kw">return</span> <span class="var">$stmt</span>-&gt;<span class="fn">execute</span>(<span class="var">$data</span>);
+    }
+
+    <span class="cm">// DELETE - Hapus buku</span>
+    <span class="kw">public function</span> <span class="fn">hapus</span>(<span class="var">$id</span>) {
+        <span class="var">$cek</span> = <span class="var">$this</span>-&gt;<span class="var">pdo</span>-&gt;<span class="fn">prepare</span>(
+            <span class="str">"SELECT COUNT(*) FROM peminjaman
+             WHERE id_buku = :id AND status = 'Dipinjam'"</span>
+        );
+        <span class="var">$cek</span>-&gt;<span class="fn">execute</span>([<span class="str">':id'</span> =&gt; <span class="var">$id</span>]);
+
+        <span class="kw">if</span> (<span class="var">$cek</span>-&gt;<span class="fn">fetchColumn</span>() &gt; <span class="num">0</span>) {
+            <span class="kw">throw new</span> <span class="type">Exception</span>(
+                <span class="str">"Tidak bisa hapus, buku masih dipinjam"</span>
+            );
+        }
+
+        <span class="var">$stmt</span> = <span class="var">$this</span>-&gt;<span class="var">pdo</span>-&gt;<span class="fn">prepare</span>(
+            <span class="str">"DELETE FROM buku WHERE id_buku = :id"</span>
+        );
+        <span class="kw">return</span> <span class="var">$stmt</span>-&gt;<span class="fn">execute</span>([<span class="str">':id'</span> =&gt; <span class="var">$id</span>]);
+    }
+
+    <span class="cm">// Statistik - Total buku</span>
+    <span class="kw">public function</span> <span class="fn">total_buku</span>() {
+        <span class="var">$res</span> = <span class="var">$this</span>-&gt;<span class="var">pdo</span>-&gt;<span class="fn">query</span>(
+            <span class="str">"SELECT COUNT(*) FROM buku"</span>
+        );
+        <span class="kw">return</span> <span class="var">$res</span>-&gt;<span class="fn">fetchColumn</span>();
+    }
+}
+<span class="var">?&gt;</span></pre>
+       </div>
+      </div><!-- JavaScript Utility -->
+      <div>
+       <h3 class="font-semibold text-xl mb-4" style="color:#c4b5fd;">🔧 JavaScript Utility (Client-Side)</h3>
+       <div class="code-block p-5 font-mono text-sm leading-relaxed">
+        <pre><span class="cm">// File: app.js - Fungsi Helper JavaScript</span>
+
+<span class="cm">// 1. AJAX Request Helper</span>
+<span class="kw">async function</span> <span class="fn">apiCall</span>(<span class="var">endpoint</span>, <span class="var">method</span> = <span class="str">'GET'</span>, <span class="var">data</span> = <span class="kw">null</span>) {
+    <span class="var">const options</span> = {
+        method: <span class="var">method</span>,
+        headers: { <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span> }
+    };
+    <span class="kw">if</span> (<span class="var">data</span>) <span class="var">options</span>.<span class="var">body</span> = <span class="fn">JSON</span>.<span class="fn">stringify</span>(<span class="var">data</span>);
+    <span class="var">const response</span> = <span class="kw">await</span> <span class="fn">fetch</span>(<span class="var">endpoint</span>, <span class="var">options</span>);
+    <span class="kw">return</span> <span class="var">response</span>.<span class="fn">json</span>();
+}
+
+<span class="cm">// 2. Format tanggal (ID)</span>
+<span class="kw">function</span> <span class="fn">formatDate</span>(<span class="var">date</span>) {
+    <span class="var">const months</span> = [<span class="str">'Jan'</span>,<span class="str">'Feb'</span>,<span class="str">'Mar'</span>,
+                      <span class="str">'Apr'</span>,<span class="str">'Mei'</span>,<span class="str">'Jun'</span>,
+                      <span class="str">'Jul'</span>,<span class="str">'Ags'</span>,<span class="str">'Sep'</span>,
+                      <span class="str">'Okt'</span>,<span class="str">'Nov'</span>,<span class="str">'Des'</span>];
+    <span class="var">const d</span> = <span class="kw">new</span> <span class="type">Date</span>(<span class="var">date</span>);
+    <span class="kw">return</span> <span class="var">d</span>.<span class="fn">getDate</span>() + <span class="str">' '</span> + 
+           <span class="var">months</span>[<span class="var">d</span>.<span class="fn">getMonth</span>()] + <span class="str">' '</span> + 
+           <span class="var">d</span>.<span class="fn">getFullYear</span>();
+}
+
+<span class="cm">// 3. Validasi Email</span>
+<span class="kw">function</span> <span class="fn">isValidEmail</span>(<span class="var">email</span>) {
+    <span class="var">const regex</span> = <span class="str">/^[^\s@]+@[^\s@]+\.[^\s@]+$/</span>;
+    <span class="kw">return</span> <span class="var">regex</span>.<span class="fn">test</span>(<span class="var">email</span>);
+}
+
+<span class="cm">// 4. Export ke CSV</span>
+<span class="kw">function</span> <span class="fn">exportCSV</span>(<span class="var">data</span>, <span class="var">filename</span>) {
+    <span class="var">let csv</span> = <span class="fn">Object</span>.<span class="fn">keys</span>(<span class="var">data</span>[<span class="num">0</span>]).<span class="fn">join</span>(<span class="str">','</span>) + <span class="str">'\n'</span>;
+    <span class="var">data</span>.<span class="fn">forEach</span>(<span class="var">row</span> =&gt; {
+        <span class="var">csv</span> += <span class="fn">Object</span>.<span class="fn">values</span>(<span class="var">row</span>).<span class="fn">join</span>(<span class="str">','</span>) + <span class="str">'\n'</span>;
+    });
+    <span class="var">const blob</span> = <span class="kw">new</span> <span class="type">Blob</span>([<span class="var">csv</span>], 
+                        { type: <span class="str">'text/csv;charset=utf-8;'</span> });
+    <span class="var">const link</span> = <span class="fn">document</span>.<span class="fn">createElement</span>(<span class="str">'a'</span>);
+    <span class="var">link</span>.<span class="var">href</span> = <span class="fn">URL</span>.<span class="fn">createObjectURL</span>(<span class="var">blob</span>);
+    <span class="var">link</span>.<span class="var">download</span> = <span class="var">filename</span>;
+    <span class="var">link</span>.<span class="fn">click</span>();
+}</pre>
+       </div>
+      </div>
+     </div>
+    </section>
+   </main><!-- Toast -->
+   <div id="toast" class="fixed bottom-6 right-6 z-50 hidden"></div>
+  </div>
+  <script>
+  // ===== State =====
+  let allBooks = [];
+  let deleteTarget = null;
+
+  // ===== Tab Navigation =====
+  function showSection(idx) {
+    for (let i = 0; i < 6; i++) {
+      const sec = document.getElementById('sec-' + i);
+      sec.classList.toggle('hidden', i !== idx);
+    }
+    document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+      if (i === idx) {
+        btn.classList.add('tab-active');
+        btn.style.borderColor = '#7c3aed';
+        btn.style.color = '#c4b5fd';
+        btn.classList.remove('opacity-60');
+      } else {
+        btn.classList.remove('tab-active');
+        btn.style.borderColor = 'transparent';
+        btn.style.color = '';
+        btn.classList.add('opacity-60');
+      }
+    });
+    // Re-create icons for newly visible section
+    lucide.createIcons();
+  }
+
+  // ===== Toast =====
+  function showToast(msg, type = 'success') {
+    const t = document.getElementById('toast');
+    const bg = type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#f59e0b';
+    t.innerHTML = `<div class="toast-show px-5 py-3 rounded-xl text-sm font-medium shadow-lg" style="background:${bg};color:#fff;">${msg}</div>`;
+    t.classList.remove('hidden');
+    setTimeout(() => t.classList.add('hidden'), 3000);
+  }
+
+  // ===== CRUD Form =====
+  document.getElementById('bookForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnSubmit');
+    btn.disabled = true;
+    btn.textContent = 'Menyimpan...';
+
+    const data = {
+      title: document.getElementById('inp-title').value.trim(),
+      author: document.getElementById('inp-author').value.trim(),
+      year: parseInt(document.getElementById('inp-year').value) || 0,
+      category: document.getElementById('inp-cat').value,
+      isbn: document.getElementById('inp-isbn').value.trim(),
+      status: document.getElementById('inp-status').value
+    };
+
+    const editId = document.getElementById('editId').value;
+
+    if (editId) {
+      // Update
+      const record = allBooks.find(b => b.__backendId === editId);
+      if (record) {
+        const updated = { ...record, ...data };
+        const res = await window.dataSdk.update(updated);
+        if (res.isOk) { showToast('Buku berhasil diperbarui!'); cancelEdit(); }
+        else showToast('Gagal memperbarui: ' + res.error.message, 'error');
+      }
+    } else {
+      // Create
+      if (allBooks.length >= 999) {
+        document.getElementById('limitWarning').classList.remove('hidden');
+        showToast('Batas 999 buku tercapai!', 'error');
+      } else {
+        const res = await window.dataSdk.create(data);
+        if (res.isOk) { showToast('Buku berhasil ditambahkan!'); this.reset(); }
+        else showToast('Gagal menambahkan: ' + res.error.message, 'error');
+      }
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="save" style="width:16px;height:16px;display:inline;vertical-align:-3px;"></i> Simpan';
+    lucide.createIcons();
+  });
+
+  function editBook(id) {
+    const book = allBooks.find(b => b.__backendId === id);
+    if (!book) return;
+    document.getElementById('editId').value = id;
+    document.getElementById('inp-title').value = book.title || '';
+    document.getElementById('inp-author').value = book.author || '';
+    document.getElementById('inp-year').value = book.year || '';
+    document.getElementById('inp-cat').value = book.category || 'Fiksi';
+    document.getElementById('inp-isbn').value = book.isbn || '';
+    document.getElementById('inp-status').value = book.status || 'Tersedia';
+    document.getElementById('formTitle').innerHTML = '<i data-lucide="edit" style="width:18px;height:18px;display:inline;vertical-align:-3px;"></i> Edit Buku';
+    document.getElementById('btnCancel').classList.remove('hidden');
+    document.getElementById('bookForm').scrollIntoView({ behavior: 'smooth' });
+    lucide.createIcons();
+  }
+
+  function cancelEdit() {
+    document.getElementById('editId').value = '';
+    document.getElementById('bookForm').reset();
+    document.getElementById('formTitle').innerHTML = '<i data-lucide="plus-circle" style="width:18px;height:18px;display:inline;vertical-align:-3px;"></i> Tambah Buku Baru';
+    document.getElementById('btnCancel').classList.add('hidden');
+    lucide.createIcons();
+  }
+
+  // ===== Delete =====
+  function askDelete(id) {
+    deleteTarget = id;
+    const book = allBooks.find(b => b.__backendId === id);
+    document.getElementById('confirmText').textContent = `Hapus "${book?.title || 'buku ini'}" dari daftar?`;
+    document.getElementById('confirmOverlay').classList.remove('hidden');
+  }
+  function closeConfirm() {
+    document.getElementById('confirmOverlay').classList.add('hidden');
+    deleteTarget = null;
+  }
+  async function confirmDelete() {
+    if (!deleteTarget) return;
+    const btn = document.getElementById('btnConfirmDel');
+    btn.disabled = true; btn.textContent = 'Menghapus...';
+    const record = allBooks.find(b => b.__backendId === deleteTarget);
+    if (record) {
+      const res = await window.dataSdk.delete(record);
+      if (res.isOk) showToast('Buku berhasil dihapus!');
+      else showToast('Gagal menghapus: ' + res.error.message, 'error');
+    }
+    btn.disabled = false; btn.textContent = 'Hapus';
+    closeConfirm();
+  }
+
+  // ===== Render Books =====
+  function renderBooks(books) {
+    const container = document.getElementById('bookList');
+    const empty = document.getElementById('emptyState');
+    document.getElementById('bookCount').textContent = `(${books.length})`;
+    document.getElementById('limitWarning').classList.toggle('hidden', books.length < 999);
+
+    if (books.length === 0) {
+      // Remove all book cards
+      container.querySelectorAll('.book-card').forEach(el => el.remove());
+      if (!empty.parentNode) container.appendChild(empty);
+      empty.classList.remove('hidden');
+      return;
+    }
+
+    empty.classList.add('hidden');
+
+    const existing = new Map([...container.querySelectorAll('.book-card')].map(el => [el.dataset.id, el]));
+
+    books.forEach(book => {
+      const id = book.__backendId;
+      const isAvailable = book.status === 'Tersedia';
+      const html = `
+        <div class="flex items-center justify-between gap-4 flex-wrap">
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold truncate">${escHtml(book.title || 'Tanpa Judul')}</div>
+            <div class="text-sm opacity-60">${escHtml(book.author || '-')} · ${book.year || '-'} · ${escHtml(book.category || '-')}</div>
+            ${book.isbn ? `<div class="text-xs font-mono opacity-40 mt-1">ISBN: ${escHtml(book.isbn)}</div>` : ''}
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <span class="px-2.5 py-1 rounded-full text-xs font-semibold ${isAvailable ? 'status-available' : 'status-borrowed'}">${escHtml(book.status || 'Tersedia')}</span>
+            <button onclick="editBook('${id}')" class="p-2 rounded-lg transition-colors" style="background:#374151;" title="Edit"><i data-lucide="edit-2" style="width:14px;height:14px;"></i></button>
+            <button onclick="askDelete('${id}')" class="p-2 rounded-lg transition-colors" style="background:#7f1d1d;" title="Hapus"><i data-lucide="trash-2" style="width:14px;height:14px;color:#fca5a5;"></i></button>
+          </div>
+        </div>`;
+
+      if (existing.has(id)) {
+        existing.get(id).innerHTML = html;
+        existing.delete(id);
+      } else {
+        const card = document.createElement('div');
+        card.className = 'book-card rounded-xl p-4 card-hover';
+        card.style.background = '#232440';
+        card.dataset.id = id;
+        card.innerHTML = html;
+        container.appendChild(card);
+      }
+    });
+
+    existing.forEach(el => el.remove());
+    lucide.createIcons();
+  }
+
+  function escHtml(s) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function filterBooks() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = q ? allBooks.filter(b => (b.title || '').toLowerCase().includes(q) || (b.author || '').toLowerCase().includes(q)) : allBooks;
+    renderBooks(filtered);
+  }
+
+  // ===== Data SDK =====
+  const dataHandler = {
+    onDataChanged(data) {
+      allBooks = data;
+      filterBooks();
+    }
+  };
+
+  (async () => {
+    const res = await window.dataSdk.init(dataHandler);
+    if (!res.isOk) console.error('Data SDK init failed');
+  })();
+
+  // ===== Element SDK =====
+  const defaultConfig = {
+    main_title: 'Pembuatan Database, Koneksi & CRUD',
+    subtitle: 'Aplikasi Perpustakaan Digital — Panduan Lengkap dari Teori hingga Praktik',
+    background_color: '#0f1019',
+    surface_color: '#1a1b2e',
+    text_color: '#e2e8f0',
+    primary_action_color: '#7c3aed',
+    secondary_action_color: '#c4b5fd',
+    font_family: 'DM Sans',
+    font_size: 16
+  };
+
+  window.elementSdk.init({
+    defaultConfig,
+    onConfigChange: async (config) => {
+      const c = { ...defaultConfig, ...config };
+      document.getElementById('mainTitle').textContent = c.main_title;
+      document.getElementById('subtitle').textContent = c.subtitle;
+
+      document.body.style.background = c.background_color;
+      document.body.style.color = c.text_color;
+
+      const font = c.font_family + ', DM Sans, system-ui, sans-serif';
+      document.body.style.fontFamily = font;
+
+      const base = c.font_size || 16;
+      document.getElementById('mainTitle').style.fontSize = (base * 2.5) + 'px';
+      document.getElementById('subtitle').style.fontSize = (base * 1.15) + 'px';
+
+      // Apply surface color to cards
+      document.querySelectorAll('[style*="background:#1a1b2e"]').forEach(el => {
+        el.style.background = c.surface_color;
+      });
+
+      // Apply primary action color
+      document.querySelectorAll('[style*="background:#7c3aed"]').forEach(el => {
+        el.style.background = c.primary_action_color;
+      });
+    },
+    mapToCapabilities: (config) => {
+      const c = { ...defaultConfig, ...config };
+      const makeColor = (key) => ({
+        get: () => c[key] || defaultConfig[key],
+        set: (v) => { c[key] = v; window.elementSdk.setConfig({ [key]: v }); }
+      });
+      return {
+        recolorables: [
+          makeColor('background_color'),
+          makeColor('surface_color'),
+          makeColor('text_color'),
+          makeColor('primary_action_color'),
+          makeColor('secondary_action_color')
+        ],
+        borderables: [],
+        fontEditable: {
+          get: () => c.font_family || defaultConfig.font_family,
+          set: (v) => { c.font_family = v; window.elementSdk.setConfig({ font_family: v }); }
+        },
+        fontSizeable: {
+          get: () => c.font_size || defaultConfig.font_size,
+          set: (v) => { c.font_size = v; window.elementSdk.setConfig({ font_size: v }); }
+        }
+      };
+    },
+    mapToEditPanelValues: (config) => {
+      const c = { ...defaultConfig, ...config };
+      return new Map([
+        ['main_title', c.main_title || defaultConfig.main_title],
+        ['subtitle', c.subtitle || defaultConfig.subtitle]
+      ]);
+    }
+  });
+
+  // Init icons
+  lucide.createIcons();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9ecf977f21aafe0d',t:'MTc3NjMwNDc3OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
